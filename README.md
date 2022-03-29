@@ -28,5 +28,10 @@ COFFREO_USERNAME=xxxx
 COFFREO_PASSWORD=xxxx
 ```
 
+.driveData.json
+```json
+{ "paySlipInDrive": [] }
+```
+
 ## Warning!!
 - this project was designed specifically for the coffreo site, so if you are using another site for payslips, you need to rewrite code that is relevant to your needs, but my functions in the utils folder can help you as they are designed for global use.
