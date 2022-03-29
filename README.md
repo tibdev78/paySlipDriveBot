@@ -5,11 +5,14 @@ Bot to send your paySlip on your Google drive
 ## Utilisation
 
 If you are interested in using this project, you need to perform several steps:
-    - Create a google project
-    - Activate google drive
-    - create Oauth credentials
-    - get a refresh token in the oauthplayground redirect link
-    - Create an .env file on the root of the project and set the Environment variable. 
+- Create a google project
+- Activate google drive
+- create Oauth credentials
+- get a refresh token in the oauthplayground redirect link
+- Create an .env file on the root of the project and set the Environment variable.
+- Create a data folder in src folder, then driveData.json file in data folder
+- Install packages
+- tap yarn dev 
 
 .env file :
 ```shell
