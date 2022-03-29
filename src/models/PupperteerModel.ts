@@ -11,4 +11,4 @@ type InputObjectParameters = {
     value?: string
 }
 
-export { InputParameters }
+export { InputParameters, InputObjectParameters }

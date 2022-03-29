@@ -1,7 +1,6 @@
 import puppeteer, { 
     BrowserConnectOptions, 
-    BrowserLaunchArgumentOptions, 
-    ElementHandle, 
+    BrowserLaunchArgumentOptions,
     LaunchOptions, 
     Page, 
     Product 
@@ -10,11 +9,12 @@ import { InputParameters } from "../models/PupperteerModel";
 
 const setInputAction = async (page: Page, inputOptions: InputParameters) => {
     const {usernameTag, passwordTag, buttonTag} = inputOptions;
-    for(let tag of [usernameTag, passwordTag]) {
-        await page.waitForSelector(tag.name);
+    const tags = [usernameTag, passwordTag];
+    for(let i = 0; i < tags.length; i+=1) {
+        await page.waitForSelector(tags[i].name);
         await page.type(
-            tag.name, 
-            tag?.value ?? "" , 
+            tags[i].name, 
+            tags[i]?.value ?? "" , 
             { delay: inputOptions?.delay ?? 100 }
         );
     }

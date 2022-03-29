@@ -41,7 +41,7 @@ const searchFolder = async (driveClient: drive_v3.Drive, options: SearchFolderFu
 
 const saveFile = async (driveClient: drive_v3.Drive, fileOptions: SaveFileFunctionParams): GaxiosPromise<drive_v3.Schema$File> => {
     try {
-        let bufferStream = new PassThrough();
+        const bufferStream = new PassThrough();
         bufferStream.end(fileOptions.bufferData);
         return await driveClient.files.create({
             requestBody: {

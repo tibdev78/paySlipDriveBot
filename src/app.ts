@@ -1,9 +1,10 @@
 import { drive_v3 } from 'googleapis';
-import { searchFolder, saveFile } from './utils/GoogleDriveUtils';
 import { join } from 'path';
 import { readFileSync, writeFileSync } from 'fs';
+import { searchFolder, saveFile } from './utils/GoogleDriveUtils';
 import { DriveData, PaySlipInDrive } from './models/FileData';
 import { getPage, setInputAction } from './utils/PupperteerUtils';
+import winstonLog from './utils/WinstonUtils';
 
 const launchScript = async (googleDriveInstance: drive_v3.Drive, pageLink: string) => {
     try {
@@ -25,38 +26,38 @@ const launchScript = async (googleDriveInstance: drive_v3.Drive, pageLink: strin
             }
         )
         const url = await page.$$(".DocumentsScrollViewItem");
-        const datasOnPagePromised= url.map(async (data, i) => {
+        const datasOnPagePromised= url.map(async (data) => {
             const documentLink = await data.$eval('.DocumentMosaicViewItem__link', node => node.getAttribute('href'))
             const texts = await data.$eval('.DocumentMosaicViewItem', node => (node as HTMLElement).innerText);
             const [, filename] = texts.split('\n');
             const [year, month] = texts.match(/[0-9]+/g);
             return {
                 link : pageLink.concat(`${documentLink}`),
-                filename: filename,
+                filename,
                 period: year.concat(`-${month}`)
             }
         });
         const datasOnPage: Array<PaySlipInDrive> = await Promise.all(datasOnPagePromised);
         const filteredDatasNoExist = datasOnPage.filter(oDataOnPage => !fileData.paySlipInDrive.some(oDataDrive => oDataDrive.period === oDataOnPage.period));
         if(filteredDatasNoExist.length > 0) {
-            for(const oFilteredDataNoExist of filteredDatasNoExist) {
-                await page.goto(oFilteredDataNoExist.link, { waitUntil: 'domcontentloaded' });
+            for(let i = 0; i < filteredDatasNoExist.length; i+=1) {
+                await page.goto(filteredDatasNoExist[i].link, { waitUntil: 'domcontentloaded' });
                 await page.waitForSelector('.document');
-                const response = await page.waitForResponse(response => response.headers()['content-type'] === 'application/pdf')
-                const bufferData = await response.buffer();
+                const responseHeader = await page.waitForResponse(response => response.headers()['content-type'] === 'application/pdf')
+                const bufferData = await responseHeader.buffer();
                 await saveFile(googleDriveInstance, {
-                    fileName: oFilteredDataNoExist.filename,
+                    fileName: filteredDatasNoExist[i].filename,
                     fileMimeType: 'application/pdf',
-                    bufferData: bufferData,
+                    bufferData,
                     folderId: folder?.id ?? ''
                 });
                 await page.goBack();
             }
             writeFileSync(filePath, JSON.stringify({...fileData, paySlipInDrive: [...fileData.paySlipInDrive, ...filteredDatasNoExist]}))
         }
-        console.info('process done')
+        winstonLog({ level: 'info', message: 'process done' })
     } catch(err) {
-        console.error(err);
+        winstonLog({ level: 'error', message: err })
     }
 }
 
